@@ -7,11 +7,11 @@ Aplicación web que carga un **sitemap de películas** y muestra un catálogo in
 - 📁 **Carga automática** de `sitemap-peliculas.php` (o cualquier sitemap en formato texto/XML)
 - 🎨 Interfaz moderna tipo Netflix
 - 🔍 Búsqueda instantánea en el catálogo local
-- 🎚️ Filtros por año, género y categorías (recientes, clásicos, mejor puntuados)
+- 🔻 Filtros por año, género y categorías (recientes, clásicos, mejor puntuados)
 - ▶️ Reproductor de video con **múltiples servidores** (Latino, Castellano, Subtitulado)
 - 📱 Diseño responsive (funciona en móviles)
 - 🌐 Datos enriquecidos desde **The Movie Database (TMDB)**
-- 🖼️ Carga lazy de imágenes con shimmer effect
+- 📄 Carga lazy de imágenes con shimmer effect
 
 ## 📦 Cómo funciona
 
