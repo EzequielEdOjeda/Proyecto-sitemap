@@ -25,3 +25,4 @@ Aplicación web que carga un **sitemap de películas** y muestra un catálogo in
 <br></br>
 ![Home](PNG/Captura1.png)
 ![Movie](PNG/Captura2.png)
+## No olvides darle ⭐ a este repositorio si te gustó.
