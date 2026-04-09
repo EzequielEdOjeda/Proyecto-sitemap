@@ -1,0 +1,2328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiraPelis — Ver Películas Gratis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface2: #1a1a26;
+  --surface3: #22223a;
+  --accent: #e53935;
+  --accent2: #ff6659;
+  --gold: #f5a623;
+  --text: #f0f0f8;
+  --muted: #8888aa;
+  --border: rgba(255,255,255,0.07);
+  --radius: 10px;
+  --font-title: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+@media (max-width: 768px){
+.modal-poster-wrap {
+    opacity: 0;
+	}
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+
+.loading-screen{
+  position:fixed;inset:0;z-index:500;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:20px;
+  transition:opacity 0.6s;
+}
+.loading-logo{font-family:var(--font-title);font-size:56px;letter-spacing:4px;animation:pulse 1.4s ease-in-out infinite}
+.loading-logo span{color:var(--accent)}
+.loading-sub{font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:-10px}
+.loading-bar{width:220px;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.loading-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;width:0%;transition:width 0.3s ease}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.45}}
+
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,10,15,0.94);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;height:60px;
+  display:flex;align-items:center;gap:16px;
+}
+.logo{font-family:var(--font-title);font-size:28px;letter-spacing:2px;flex-shrink:0;text-decoration:none;color:var(--text)}
+.logo span{color:var(--accent)}
+
+.header-search{
+  flex:1;max-width:460px;position:relative;
+  display:flex;align-items:center;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:30px;
+  padding:0 16px;gap:8px;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.header-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(229,57,53,0.12)}
+.header-search input{
+  background:none;border:none;outline:none;
+  color:var(--text);font-family:var(--font-body);font-size:14px;
+  width:100%;padding:9px 0;
+}
+.header-search input::placeholder{color:var(--muted)}
+.header-search .search-icon{color:var(--muted);flex-shrink:0;font-size:13px}
+.search-clear{
+  background:none;border:none;color:var(--muted);
+  cursor:pointer;font-size:14px;padding:0 2px;
+  display:none;transition:color 0.2s;
+}
+.search-clear:hover{color:var(--text)}
+
+.header-nav{display:flex;align-items:center;gap:4px;margin-left:auto}
+.nav-btn{
+  background:none;border:none;color:var(--muted);
+  font-family:var(--font-body);font-size:13px;font-weight:500;
+  padding:6px 12px;border-radius:6px;cursor:pointer;
+  transition:color 0.2s,background 0.2s;white-space:nowrap;
+}
+.nav-btn:hover,.nav-btn.active{color:var(--text);background:var(--surface2)}
+.nav-btn.active{color:var(--accent)}
+
+.hero{
+  position:relative;height:440px;overflow:hidden;
+  display:flex;align-items:flex-end;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center 25%;
+  transition:opacity 0.9s ease;
+}
+.hero-gradient{
+  position:absolute;inset:0;
+  background:linear-gradient(to right,rgba(10,10,15,0.97) 28%,rgba(10,10,15,0.3) 70%,transparent 100%),
+              linear-gradient(to top,var(--bg) 0%,transparent 55%);
+}
+.hero-content{position:relative;z-index:2;padding:40px 40px 52px;max-width:570px}
+.hero-badge{
+  display:inline-block;background:var(--accent);color:#fff;
+  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 10px;border-radius:4px;margin-bottom:12px;
+}
+.hero-title{font-family:var(--font-title);font-size:54px;line-height:1.0;letter-spacing:1px;margin-bottom:12px}
+.hero-meta{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-bottom:14px}
+.hero-meta .rating{color:var(--gold);font-weight:700}
+.hero-desc{font-size:14px;color:rgba(240,240,248,0.75);line-height:1.65;max-width:430px;margin-bottom:22px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hero-actions{display:flex;gap:10px}
+.btn-play{display:flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:11px 26px;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s,transform 0.15s}
+.btn-play:hover{background:var(--accent2);transform:translateY(-2px)}
+.btn-info{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius);padding:11px 20px;font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;transition:background 0.2s}
+.btn-info:hover{background:rgba(255,255,255,0.18)}
+
+.main{padding:0 24px 60px}
+.section{margin-top:36px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.section-title{font-family:var(--font-title);font-size:22px;letter-spacing:1px}
+.section-title span{color:var(--accent)}
+.page-info-text{font-size:12px;color:var(--muted)}
+
+.filters-bar{
+  display:flex;gap:8px;flex-wrap:wrap;
+  margin-bottom:20px;padding-bottom:16px;
+  border-bottom:1px solid var(--border);
+}
+.filter-btn{
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--muted);border-radius:20px;
+  padding:5px 15px;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all 0.2s;
+  font-family:var(--font-body);white-space:nowrap;
+}
+.filter-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--text)}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.genre-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.genre-btn{
+  background:var(--surface3);border:none;
+  color:var(--muted);border-radius:6px;
+  padding:4px 11px;font-size:11px;font-weight:500;
+  cursor:pointer;transition:all 0.2s;font-family:var(--font-body);
+}
+.genre-btn:hover{color:var(--text);background:var(--surface2)}
+.genre-btn.active{background:var(--accent);color:#fff}
+
+.movies-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(148px,1fr));
+  gap:14px;
+}
+.movie-card{
+  position:relative;cursor:pointer;
+  border-radius:var(--radius);overflow:hidden;
+  background:var(--surface2);
+  transition:transform 0.25s,box-shadow 0.25s;
+  aspect-ratio:2/3;
+}
+.movie-card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 18px 45px rgba(0,0,0,0.65);z-index:2}
+.movie-card img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity 0.3s}
+.shimmer{
+  position:absolute;inset:0;
+  background:linear-gradient(110deg,var(--surface2) 30%,var(--surface3) 50%,var(--surface2) 70%);
+  background-size:200% 100%;
+  animation:shimmer 1.2s infinite;
+  z-index:1;
+}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+.movie-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,transparent 55%);
+  opacity:0;transition:opacity 0.25s;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:12px 10px;
+  z-index:3;
+}
+.movie-card:hover .movie-overlay{opacity:1}
+.movie-card-title{font-size:12px;font-weight:600;line-height:1.3;margin-bottom:4px;color:#fff}
+.movie-card-year{font-size:11px;color:var(--muted)}
+.movie-card-rating{
+  position:absolute;top:7px;right:7px;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);
+  border-radius:5px;padding:2px 7px;
+  font-size:11px;font-weight:700;color:var(--gold);
+  z-index:3;
+}
+.movie-card-badge{
+  position:absolute;top:7px;left:7px;
+  background:var(--accent);
+  border-radius:4px;padding:2px 6px;
+  font-size:9px;font-weight:700;color:#fff;letter-spacing:0.5px;
+  z-index:3;
+}
+.movie-card-hd{
+  position:absolute;bottom:48px;right:8px;
+  background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);
+  border-radius:4px;padding:1px 5px;
+  font-size:9px;font-weight:700;color:rgba(255,255,255,0.8);
+  opacity:0;transition:opacity 0.25s;
+  z-index:3;
+}
+.movie-card:hover .movie-card-hd{opacity:1}
+
+.pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:36px;flex-wrap:wrap}
+.page-btn{
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--muted);border-radius:7px;padding:7px 14px;
+  font-size:13px;cursor:pointer;transition:all 0.2s;font-family:var(--font-body);
+}
+.page-btn:hover{border-color:var(--accent);color:var(--text)}
+.page-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.page-btn:disabled{opacity:0.3;cursor:not-allowed}
+.page-dots{color:var(--muted);font-size:13px;padding:0 4px}
+
+.search-dropdown{
+  display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:200;
+  background:var(--surface);border-radius:12px;
+  border:1px solid var(--border);
+  box-shadow:0 20px 60px rgba(0,0,0,0.7);
+  max-height:420px;overflow-y:auto;
+}
+.search-dropdown.open{display:block}
+.search-dropdown-header{padding:12px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}
+.search-result-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;cursor:pointer;
+  border-bottom:1px solid var(--border);transition:background 0.15s;
+}
+.search-result-item:last-child{border-bottom:none}
+.search-result-item:hover{background:var(--surface2)}
+.search-result-img{width:40px;height:60px;border-radius:5px;object-fit:cover;background:var(--surface3);flex-shrink:0}
+.search-result-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.search-result-year{font-size:11px;color:var(--muted)}
+.search-result-rating{font-size:11px;color:var(--gold)}
+.no-results{padding:32px 16px;text-align:center;color:var(--muted);font-size:14px}
+.search-loading{padding:24px;text-align:center;color:var(--muted);font-size:13px}
+
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.88);backdrop-filter:blur(10px);
+  overflow-y:auto;padding:24px;
+}
+.modal-overlay.open{display:flex;align-items:flex-start;justify-content:center}
+.modal{
+  background:var(--surface);border-radius:16px;border:1px solid var(--border);
+  width:100%;max-width:1000px;overflow:hidden;position:relative;
+  animation:modalIn 0.28s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(24px) scale(0.97)}to{opacity:1;transform:none}}
+
+.modal-close{
+  position:absolute;top:14px;right:14px;z-index:10;
+  background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.1);
+  color:var(--text);border-radius:50%;width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;transition:background 0.2s;
+}
+.modal-close:hover{background:var(--accent)}
+
+.modal-hero{position:relative;height:320px;overflow:hidden;background:var(--surface2)}
+.modal-hero-shimmer{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(110deg,var(--surface2) 30%,var(--surface3) 50%,var(--surface2) 70%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+  transition:opacity 0.5s;
+}
+.modal-hero-shimmer.loaded{opacity:0;pointer-events:none}
+.modal-hero-bg{
+  width:100%;height:100%;object-fit:cover;display:block;
+  opacity:0;transition:opacity 0.6s ease;
+}
+.modal-hero-bg.loaded{opacity:1}
+.modal-hero-gradient{
+  position:absolute;inset:0;z-index:2;
+  background:linear-gradient(to top,var(--surface) 0%,transparent 60%),
+              linear-gradient(to right,rgba(18,18,26,0.85) 0%,transparent 55%);
+}
+.modal-hero-info{position:absolute;bottom:0;left:0;padding:24px;display:flex;gap:20px;align-items:flex-end;z-index:3}
+.modal-poster-wrap{
+  width:100px;height:150px;border-radius:8px;
+  border:2px solid var(--border);flex-shrink:0;
+  background:var(--surface3);position:relative;overflow:hidden;
+}
+.modal-poster-shimmer{
+  position:absolute;inset:0;border-radius:6px;
+  background:linear-gradient(110deg,var(--surface3) 30%,var(--surface2) 50%,var(--surface3) 70%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+  transition:opacity 0.4s;
+}
+.modal-poster-shimmer.loaded{opacity:0;pointer-events:none}
+.modal-poster{
+  width:100%;height:100%;object-fit:cover;display:block;
+  opacity:0;transition:opacity 0.5s ease;
+  position:relative;z-index:1;
+}
+.modal-poster.loaded{opacity:1}
+.modal-title{font-family:var(--font-title);font-size:38px;line-height:1.0;letter-spacing:1px;margin-bottom:8px}
+.modal-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.modal-tag{background:var(--surface3);color:var(--muted);border-radius:5px;padding:2px 8px;font-size:11px}
+.modal-rating-row{display:flex;align-items:center;gap:12px;font-size:13px}
+.modal-rating{color:var(--gold);font-weight:700;font-size:16px}
+.modal-hd-badge{background:var(--surface3);color:rgba(255,255,255,0.7);font-size:11px;padding:2px 8px;border-radius:5px}
+
+.modal-body{padding:24px}
+.modal-desc{font-size:14px;line-height:1.75;color:rgba(240,240,248,0.8);margin-bottom:24px}
+
+.video-container[data-loading]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface2);
+  z-index: 2;
+}
+.video-container[data-loading]::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 40px; height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 3px solid var(--surface3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  z-index: 3;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.video-container{
+  position:relative;padding-top:56.25%;
+  background:#000;border-radius:var(--radius);overflow:hidden;
+  border:1px solid var(--border);margin-bottom:20px;
+}
+.video-container iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+
+.contenedor{
+  display:flex;gap:8px;flex-wrap:wrap;
+  padding:12px 16px;
+  background:var(--surface2);border-radius:10px;
+  border:1px solid var(--border);margin-bottom:20px;
+}
+.itemServer{
+  display:flex;align-items:center;gap:6px;
+  background:var(--surface3);border:1px solid var(--border);
+  color:var(--text);border-radius:7px;
+  padding:6px 12px;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all 0.2s;font-family:var(--font-body);
+  white-space:nowrap;
+}
+.itemServer:hover{border-color:rgba(255,255,255,0.25);background:var(--surface2)}
+.itemServer.active-server{background:var(--accent);border-color:var(--accent);color:#fff}
+.itemServer img{height:16px;width:auto;object-fit:contain}
+.itemServer i{font-size:13px}
+
+.contenedor-descargar{margin-top:10px}
+.btn-descargar{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);border-radius:7px;padding:10px;
+  font-size:13px;cursor:pointer;font-family:var(--font-body);
+}
+.btn-descargar:hover{background:var(--surface3)}
+
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.btn-source{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface2);color:var(--text);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:11px 18px;font-family:var(--font-body);font-size:13px;
+  cursor:pointer;transition:background 0.2s;
+}
+.btn-source:hover{background:var(--surface3)}
+
+.servers-popup{
+  display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;padding:24px;
+}
+.servers-popup.open{display:flex}
+.servers-box{
+  background:var(--surface);border-radius:14px;
+  border:1px solid var(--border);
+  width:100%;max-width:540px;
+  overflow:hidden;animation:modalIn 0.22s ease;
+}
+.servers-box-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);
+}
+.servers-box-title{font-family:var(--font-title);font-size:18px;letter-spacing:1px}
+.servers-box-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px;transition:color 0.2s}
+.servers-box-close:hover{color:var(--text)}
+.servers-tabs{
+  display:flex;gap:0;border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.servers-tab{
+  flex:1;background:none;border:none;
+  color:var(--muted);font-family:var(--font-body);font-size:12px;font-weight:600;
+  padding:10px 8px;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;text-transform:uppercase;
+  border-bottom:2px solid transparent;
+}
+.servers-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.servers-list{padding:12px;display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto}
+.server-row{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:10px 14px;
+  cursor:pointer;transition:all 0.2s;
+}
+.server-row:hover{border-color:var(--accent);background:var(--surface3)}
+.server-row.activo{border-color:var(--accent);background:rgba(229,57,53,0.1)}
+.server-num{width:22px;height:22px;background:var(--surface3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}
+.server-name{font-size:13px;font-weight:500;flex:1}
+.server-quality{font-size:10px;color:var(--muted);background:var(--surface3);border-radius:4px;padding:2px 6px}
+.server-play-icon{color:var(--accent);font-size:14px}
+
+.empty-state{
+  grid-column:1/-1;text-align:center;
+  padding:80px 20px;color:var(--muted);
+}
+.empty-state svg{margin:0 auto 16px;display:block}
+.empty-state p{font-size:15px;margin-bottom:8px;color:var(--text)}
+.empty-state small{font-size:12px;line-height:1.7;display:block}
+.btn-demo{
+  margin-top:20px;background:var(--accent);color:#fff;
+  border:none;padding:10px 24px;border-radius:8px;
+  cursor:pointer;font-family:var(--font-body);font-size:14px;font-weight:600;
+  transition:background 0.2s;
+}
+.btn-demo:hover{background:var(--accent2)}
+
+footer{
+  border-top:1px solid var(--border);padding:28px 24px;
+  text-align:center;color:var(--muted);font-size:12px;line-height:1.85;
+}
+footer strong{color:var(--accent)}
+footer a{color:var(--muted);text-decoration:none;transition:color 0.2s}
+footer a:hover{color:var(--text)}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:12px 20px;
+  font-size:13px;color:var(--text);
+  box-shadow:0 8px 30px rgba(0,0,0,0.5);
+  transition:transform 0.3s ease;z-index:999;white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+.year-section { margin-bottom: 48px; }
+.year-section-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 2px solid var(--surface3);
+}
+.year-section-title {
+  font-family: var(--font-title); font-size: 26px; letter-spacing: 2px;
+}
+.year-section-title span { color: var(--accent); }
+.year-section-count {
+  background: var(--surface3); color: var(--muted);
+  border-radius: 20px; padding: 2px 10px; font-size: 11px; font-weight: 600;
+}
+.year-section-more {
+  margin-left: auto; background: none; border: 1px solid var(--border);
+  color: var(--muted); border-radius: 6px; padding: 4px 12px;
+  font-size: 11px; cursor: pointer; font-family: var(--font-body);
+  transition: all 0.2s;
+}
+.year-section-more:hover { border-color: var(--accent); color: var(--text); }
+
+@media(max-width:768px){
+  .hero{height:360px}
+  .hero-content{padding:24px 20px 38px}
+  .hero-title{font-size:38px}
+  .header-nav{display:none}
+  .main{padding:0 16px 50px}
+  .movies-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+  .modal-hero{height:220px}
+  .modal-hero-info{flex-direction:column;align-items:flex-start}
+  .modal-poster-wrap{width:70px;height:105px}
+  .modal-title{font-size:26px}
+  .contenedor{gap:6px;padding:10px}
+  .itemServer{padding:5px 9px;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-logo">MIRA<span>PELIS</span></div>
+  <div class="loading-sub" id="loadingSub">Cargando catálogo...</div>
+  <div class="loading-bar"><div class="loading-bar-fill" id="loadingBarFill"></div></div>
+</div>
+
+<header>
+  <a class="logo" href="#">MIRA<span>PELIS</span></a>
+
+  <div class="header-search" id="headerSearch">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" placeholder="Buscar películas..." id="searchInput" autocomplete="off" spellcheck="false">
+    <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+    <div class="search-dropdown" id="searchDropdown">
+      <div class="search-dropdown-header" id="searchDropdownHeader">Escribe para buscar...</div>
+      <div id="searchDropdownList"></div>
+    </div>
+  </div>
+
+  <nav class="header-nav">
+    <button class="nav-btn active" onclick="setNav(this,'all')">Inicio</button>
+    <button class="nav-btn" onclick="setNav(this,'recent')">Recientes</button>
+    <button class="nav-btn" onclick="setNav(this,'classic')">Clásicos</button>
+    <button class="nav-btn" onclick="setNav(this,'top')">Clasificados</button>
+    <button class="nav-btn" onclick="showFilePicker()" title="Cargar sitemap" style="border:1px solid var(--border);color:var(--accent)"><i class="fas fa-folder-open"></i></button>
+  </nav>
+</header>
+
+<div class="hero" id="heroSection">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-gradient"></div>
+  <div class="hero-content">
+    <div class="hero-badge" id="heroBadge">ESTRENO</div>
+    <h1 class="hero-title" id="heroTitle">MIRA<span style="color:var(--accent)">PELIS</span></h1>
+    <div class="hero-meta" id="heroMeta">
+      <span class="rating">★ —</span><span>·</span><span>2026</span><span>·</span><span>HD</span>
+    </div>
+    <p class="hero-desc" id="heroDesc">Tu destino de cine: miles de películas disponibles ahora mismo. Bienvenido.</p>
+    <div class="hero-actions">
+      <button class="btn-play" id="heroPlayBtn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Ver ahora
+      </button>
+      <button class="btn-info" id="heroInfoBtn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Más info
+      </button>
+    </div>
+  </div>
+</div>
+
+<main class="main">
+  <div class="section">
+    <div class="filters-bar" id="yearFilters">
+      <button class="filter-btn active" onclick="applyYearFilter(this,'all')">Todo</button>
+      <button class="filter-btn" onclick="applyYearFilter(this,'2026')">2026</button>
+      <button class="filter-btn" onclick="applyYearFilter(this,'2025')">2025</button>
+      <button class="filter-btn" onclick="applyYearFilter(this,'2024')">2024</button>
+      <button class="filter-btn" onclick="applyYearFilter(this,'2023')">2023</button>
+      <button class="filter-btn" onclick="applyYearFilter(this,'2020s')">2020s</button>
+      <button class="filter-btn" onclick="applyYearFilter(this,'2010s')">2010s</button>
+      <button class="filter-btn" onclick="applyYearFilter(this,'2000s')">2000s</button>
+      <button class="filter-btn" onclick="applyYearFilter(this,'classic')">Clásicos &lt;2000</button>
+    </div>
+    <div class="genre-row" id="genreRow">
+      <button class="genre-btn active" onclick="applyGenreFilter(this,'all')">Todos los géneros</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'28')">Acción</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'12')">Aventura</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'16')">Animación</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'35')">Comedia</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'80')">Crimen</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'18')">Drama</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'14')">Fantasía</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'27')">Terror</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'9648')">Misterio</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'10749')">Romance</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'878')">Sci-Fi</button>
+      <button class="genre-btn" onclick="applyGenreFilter(this,'53')">Thriller</button>
+    </div>
+  </div>
+
+  <div class="section" id="moviesSection">
+    <div class="section-header">
+      <h2 class="section-title">ÚLTIMAS <span>AGREGADAS</span></h2>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button id="viewToggleBtn" title="Vista por años" onclick="toggleYearSections()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;transition:all 0.2s;font-family:var(--font-body)">
+          <i class="fas fa-layer-group"></i> Por año
+        </button>
+        <span class="page-info-text" id="pageInfo">Cargando...</span>
+      </div>
+      </div>
+    </div>
+    <div class="movies-grid" id="moviesGrid"></div>
+    <div id="yearSectionsContainer" style="display:none"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</main>
+
+<footer>
+  <p><strong>MiraPelis</strong> — Este sitio no almacena archivos. <br>Los reproductores son provistos por terceros.<br>
+  Información de películas: <a href="https://www.themoviedb.org" target="_blank">TMDB</a>.</p>
+</footer>
+
+<div class="modal-overlay" id="movieModal">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+
+    <div class="modal-hero">
+      <div class="modal-hero-shimmer" id="modalBgShimmer"></div>
+      <img class="modal-hero-bg" id="modalBg" src="" alt="">
+      <div class="modal-hero-gradient"></div>
+      <div class="modal-hero-info">
+        <div class="modal-poster-wrap">
+          <div class="modal-poster-shimmer" id="modalPosterShimmer"></div>
+          <img class="modal-poster" id="modalPoster" src="" alt="">
+        </div>
+        <div class="modal-title-block">
+          <h2 class="modal-title" id="modalTitle">—</h2>
+          <div class="modal-tags" id="modalTags"></div>
+          <div class="modal-rating-row">
+            <span class="modal-rating" id="modalRating"></span>
+            <span style="color:var(--muted);font-size:13px" id="modalYear"></span>
+            <span class="modal-hd-badge">HD</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-desc" id="modalDesc">Cargando información...</p>
+
+      <div class="video-container" id="videoContainer">
+        <iframe id="if-video" src="" frameborder="0" scrolling="no" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      </div>
+
+      <div class="contenedor" id="serverContainer" style="display:none;">
+        <div class="itemServer" onclick="setAudio('latino')">
+          <img src="https://flagcdn.com/w40/mx.png" alt="Latino" style="height:14px"> Latino
+        </div>
+        <div class="itemServer" onclick="setAudio('espanol')">
+          <img src="https://flagcdn.com/w40/es.png" alt="Español" style="height:14px"> Castellano
+        </div>
+        <div class="itemServer" onclick="setAudio('subtitulada')">
+          <img src="https://flagcdn.com/w40/us.png" alt="Subtitulada" style="height:14px"> Subtitulada
+        </div>
+        <div class="itemServer" onclick="openMovieSite()">
+          <i class="fas fa-external-link-alt"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="servers-popup" id="serversPopup">
+  <div class="servers-box">
+    <div class="servers-box-header">
+      <span class="servers-box-title">SERVIDORES</span>
+      <button class="servers-box-close" onclick="closeServersPopup()">✕</button>
+    </div>
+    <div class="servers-tabs">
+      <button class="servers-tab active" onclick="switchServerTab('latino')">🌎 Latino</button>
+      <button class="servers-tab" onclick="switchServerTab('espanol')">🇪🇸 Castellano</button>
+      <button class="servers-tab" onclick="switchServerTab('subtitulada')">🇺🇸 Subtitulada</button>
+      <button class="servers-tab" onclick="switchServerTab('descargas')">⬇️ Descargas</button>
+    </div>
+    <div class="servers-list" id="serversList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   CONFIGURACIÓN
+═══════════════════════════════════════ */
+const TMDB_KEY = '8265bd1679663a7ea12ac168da84d2e8';
+const BASE_URL = 'https://pelisjuanita.com/movies';
+const ITEMS_PER_PAGE = 40;
+const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/';
+const FALLBACK_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300"%3E%3Crect width="200" height="300" fill="%231a1a26"/%3E%3Ctext x="100" y="150" fill="%238888aa" font-size="12" text-anchor="middle"%3E%F0%9F%8E%AC Sin imagen%3C/text%3E%3C/svg%3E';
+
+/* ═══════════════════════════════════════
+   SERVIDORES DINÁMICOS POR PELÍCULA
+   SERVER_URLS y ALL_SERVERS se actualizan al abrir cada película
+   desde su JSON en: BASE_URL/pelicula/[slug]/data.json
+   Mientras no haya JSON disponible, se usan estos valores base.
+═══════════════════════════════════════ */
+let SERVER_URLS = {
+  latino: '',
+  espanol: '',
+  subtitulada: ''
+};
+
+let ALL_SERVERS = {
+  latino: [],
+  espanol: [],
+  subtitulada: [],
+  descargas: []
+};
+
+/* ═══════════════════════════════════════
+   SCRAPING DE SERVIDORES DESDE PELISJUANITA
+   ─────────────────────────────────────────
+   La página de cada película tiene esta estructura:
+
+   <iframe id="if-video" src="https://supervideo.cc/e/5c1dslekui1v" ...>
+   
+   <div class="itemServer" onclick="filtrarServidor('latino')">
+   <div class="itemServer" onclick="filtrarServidor('español')">
+   <div class="itemServer" onclick="filtrarServidor('subtitulada')">
+   <div class="itemServer" onclick="filtrarServidor('descargas')">
+   <div class="itemServer" onclick="cargarTrailer('https://youtube.com/embed/...')">
+
+   Los URLs de cada servidor por idioma están en un objeto JS inline, típicamente:
+   var servidores = { latino: [{server:'URL',nombre:'Server 1'},...], ... }
+   o en data-src / data-url de cada item
+═══════════════════════════════════════ */
+const movieServerCache = {};
+
+/* Proxies CORS para obtener el HTML de la película
+   ─────────────────────────────────────────────────
+   IMPORTANTE: pelisjuanita.com es una SPA — la URL
+   https://pelisjuanita.com/movies/pelicula/[slug]
+   devuelve el index.php vacío que carga el contenido
+   dinámicamente con JS. El HTML real con servidores
+   está en el endpoint PHP:
+   https://pelisjuanita.com/movies/movieInfo.php?title=[slug]
+   Ese es el que hay que scrapear.
+*/
+async function fetchMoviePage(slug) {
+  // Endpoint real que devuelve el HTML con .row-download y el iframe
+  const movieInfoUrl = `https://pelisjuanita.com/movies/movieInfo.php?title=${encodeURIComponent(slug)}`;
+  // Fallback: URL de página completa (por si movieInfo cambia de ruta)
+  const pageUrl      = `https://pelisjuanita.com/movies/pelicula/${slug}`;
+
+  const proxies = [
+    {
+      url:   `https://api.allorigins.win/get?url=${encodeURIComponent(movieInfoUrl)}`,
+      parse: r => r.json().then(j => j.contents || '')
+    },
+    {
+      url:   `https://corsproxy.io/?url=${encodeURIComponent(movieInfoUrl)}`,
+      parse: r => r.text()
+    },
+    {
+      url:   `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(movieInfoUrl)}`,
+      parse: r => r.text()
+    },
+    {
+      url:   `https://www.whateverorigin.org/get?url=${encodeURIComponent(movieInfoUrl)}`,
+      parse: r => r.json().then(j => j.contents || j.body || '')
+    },
+    // Fallback con la URL de página completa
+    {
+      url:   `https://api.allorigins.win/get?url=${encodeURIComponent(pageUrl)}`,
+      parse: r => r.json().then(j => j.contents || '')
+    },
+  ];
+
+  // Helper: intentar un proxy con timeout
+  async function tryProxy(proxy, timeoutMs = 5000) {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      const res = await fetch(proxy.url, { cache: 'no-store', signal: ctrl.signal });
+      clearTimeout(tid);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const html = await proxy.parse(res);
+      if (html && html.length > 200) {
+        const hasContent = html.includes('row-download') || html.includes('if-video') || html.includes('filtrarServidor');
+        if (hasContent) return html;
+      }
+      throw new Error('sin contenido útil');
+    } catch(e) {
+      clearTimeout(tid);
+      throw e;
+    }
+  }
+
+  // ── Fase 1: carrera entre los 2 primeros proxies (más rápidos) ──
+  try {
+    const result = await Promise.any([
+      tryProxy(proxies[0], 5000),
+      tryProxy(proxies[1], 5000)
+    ]);
+    console.log(`✅ Proxy rápido OK para "${slug}"`);
+    return result;
+  } catch(e) {
+    console.warn(`⚠️ Proxies rápidos fallaron para "${slug}", probando fallbacks...`);
+  }
+
+  // ── Fase 2: fallbacks secuenciales con timeout reducido ──
+  for (const proxy of proxies.slice(2)) {
+    try {
+      const html = await tryProxy(proxy, 5000);
+      console.log(`✅ Proxy fallback OK para "${slug}"`);
+      return html;
+    } catch(e) {
+      console.warn(`Proxy fallback falló:`, e.message);
+    }
+  }
+
+  console.warn(`❌ No se pudo obtener página de: ${slug}`);
+  return null;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCRAPER — basado en la estructura REAL de pelisjuanita.com
+   ──────────────────────────────────────────────────────────
+   El sitio renderiza los servidores así:
+
+   IFRAME activo:
+     <iframe id="if-video" src="https://pj.seekplayer.vip/#xxxx" ...>
+
+   BOTONES de idioma (.contenedor > .itemServer):
+     Con onclick="filtrarServidor('latino')"  → disponible pero NO activo
+     Con disabled=""                          → idioma ACTIVO (ya cargado en el iframe)
+
+   LISTA de servidores (.box-download .row-download):
+     <div class="row-download"
+          data-tipo="stream"     ← "stream" | "descarga" | "ayuda"
+          data-idioma="latino"   ← "latino" | "español" | "subtitulada"
+          data-url="https://..."
+          onclick="cargarServior('https://...')">
+       <span>Nombre servidor</span>
+       <span>Calidad</span>
+       <span>Audio</span>
+     </div>
+
+   TRAILER:
+     onclick="cargarTrailer('https://www.youtube.com/embed/XXXXX?autoplay=1&amp;autohide=1')"
+═══════════════════════════════════════════════════════════ */
+function scrapeServersFromHTML(html, slug) {
+  const result = { latino: [], espanol: [], subtitulada: [], descargas: [], trailerUrl: null };
+  if (!html) return result;
+
+  // Normalizar entidades HTML para facilitar el parseo
+  const h = html.replace(/&amp;/g, '&').replace(/&#39;/g, "'");
+
+  // ── 1. IFRAME ACTIVO ─────────────────────────────────────────────
+  // Extraer el src del <iframe id="if-video" ...>
+  let mainVideoUrl = null;
+  const iframeTagRx = /<iframe[^>]*id=["']if-video["'][^>]*>/i;
+  const iframeTagRx2 = /<iframe[^>]*>[^<]*<\/iframe>/gi; // por si está partido
+  const iframeTag = h.match(iframeTagRx);
+  if (iframeTag) {
+    const srcM = iframeTag[0].match(/\bsrc=["']([^"']+)["']/i);
+    if (srcM && srcM[1] && srcM[1] !== 'about:blank' && srcM[1].trim() !== '') {
+      mainVideoUrl = srcM[1].trim();
+    }
+  }
+
+  // ── 2. IDIOMA ACTIVO — botón con disabled="" ──────────────────────
+  // <div class="itemServer tooltip" disabled="" data-tooltip="Audio Latino"> → latino activo
+  // <div class="itemServer tooltip" disabled="" data-tooltip="Audio Castellano"> → español activo
+  // El disabled indica que ese idioma ya está cargado en el iframe
+  let activeAudioLang = 'latino'; // default
+  const disabledBtnRx = /<div[^>]+class="[^"]*itemServer[^"]*"[^>]+disabled[^>]*>/gi;
+  let dbm;
+  while ((dbm = disabledBtnRx.exec(h)) !== null) {
+    const tag = dbm[0].toLowerCase();
+    const ttM = tag.match(/data-tooltip="([^"]+)"/);
+    if (!ttM) continue;
+    const tt = ttM[1];
+    if (tt.includes('latin')) { activeAudioLang = 'latino'; break; }
+    if (tt.includes('castell') || tt.includes('español') || tt.includes('espanol')) { activeAudioLang = 'espanol'; break; }
+    if (tt.includes('sub') || tt.includes('original')) { activeAudioLang = 'subtitulada'; break; }
+  }
+  // Alternativa: buscar qué botón NO tiene onclick="filtrarServidor" 
+  // (el activo no necesita onclick porque ya está seleccionado)
+  if (activeAudioLang === 'latino') {
+    // Verificar si castellano o subtitulada tienen disabled en lugar de latino
+    const casDisRx = /<div[^>]+disabled[^>]+data-tooltip="[^"]*[Cc]astell[^"]*"[^>]*>/i;
+    const subDisRx = /<div[^>]+disabled[^>]+data-tooltip="[^"]*[Ss]ubtitul[^"]*"[^>]*>/i;
+    const casDisRx2 = /<div[^>]+data-tooltip="[^"]*[Cc]astell[^"]*"[^>]+disabled[^>]*>/i;
+    const subDisRx2 = /<div[^>]+data-tooltip="[^"]*[Ss]ubtitul[^"]*"[^>]+disabled[^>]*>/i;
+    if (h.match(casDisRx) || h.match(casDisRx2)) activeAudioLang = 'espanol';
+    else if (h.match(subDisRx) || h.match(subDisRx2)) activeAudioLang = 'subtitulada';
+  }
+
+  // ── 3. LISTA DE SERVIDORES — .row-download con data-* ────────────
+  // Estructura: <div class="row-download" data-tipo="stream" data-idioma="latino" data-url="..." onclick="cargarServior(...)">
+  //   <span>NombreServidor</span><span>HD</span><span>Latino</span>
+  // También puede usar onclick="cargarServior('URL')" como fuente de URL
+  const rowRx = /<div[^>]+class="[^"]*row-download[^"]*"([^>]*)>([\s\S]*?)<\/div>/gi;
+  let rowM;
+  while ((rowM = rowRx.exec(h)) !== null) {
+    const attrs = rowM[1];
+    const inner = rowM[2];
+
+    // Extraer atributos data-*
+    const tipoM   = attrs.match(/data-tipo=["']([^"']+)["']/i);
+    const idiomaM = attrs.match(/data-idioma=["']([^"']+)["']/i);
+    const urlAttr = attrs.match(/data-url=["']([^"']+)["']/i);
+
+    // Extraer URL también desde onclick="cargarServior('URL')"
+    const onclickM = attrs.match(/onclick=["'][^'"]*cargarServior\(['"]([^'"]+)['"]\)/i)
+                  || inner.match(/onclick=["'][^'"]*cargarServior\(['"]([^'"]+)['"]\)/i);
+
+    const tipo   = tipoM   ? tipoM[1].toLowerCase().trim()   : '';
+    const idioma = idiomaM ? idiomaM[1].toLowerCase().trim() : '';
+    const url    = (urlAttr ? urlAttr[1] : (onclickM ? onclickM[1] : '')).trim();
+
+    if (!url) continue;
+
+    // Extraer nombre y calidad de los <span> internos
+    const spans = [...inner.matchAll(/<span[^>]*>([^<]+)<\/span>/gi)].map(s => s[1].trim());
+    const name    = spans[0] || 'Servidor';
+    const quality = spans[1] || 'HD';
+
+    const entry = { name, url, quality };
+
+    if (tipo === 'stream') {
+      if (idioma === 'latino'     || idioma === 'lat')          result.latino.push(entry);
+      else if (idioma === 'español' || idioma === 'espanol'
+            || idioma === 'castellano' || idioma === 'cast')    result.espanol.push(entry);
+      else if (idioma === 'subtitulada' || idioma === 'sub'
+            || idioma === 'subtitulado')                        result.subtitulada.push(entry);
+      else result.latino.push(entry); // fallback
+    } else if (tipo === 'descarga') {
+      result.descargas.push({ ...entry, type: 'download' });
+    }
+  }
+
+  // ── 4. FALLBACK: si no hay .row-download, usar el iframe principal ─
+  // Asignarlo al idioma activo detectado
+  if (mainVideoUrl && result.latino.length === 0 && result.espanol.length === 0 && result.subtitulada.length === 0) {
+    const entry = { name: 'Servidor 1', url: mainVideoUrl, quality: 'HD' };
+    result[activeAudioLang].push(entry);
+    console.log(`⚠️ Sin .row-download, usando iframe principal para idioma "${activeAudioLang}"`);
+  } else if (mainVideoUrl) {
+    // Si hay servidores pero el iframe activo no está en la lista del idioma activo, insertarlo al inicio
+    const activeList = result[activeAudioLang];
+    if (activeList.length > 0 && !activeList.find(s => s.url === mainVideoUrl)) {
+      activeList.unshift({ name: activeList[0]?.name || 'Servidor 1', url: mainVideoUrl, quality: 'HD' });
+    }
+  }
+
+  // ── 5. TRAILER ───────────────────────────────────────────────────
+  // onclick="cargarTrailer('https://www.youtube.com/embed/ID?autoplay=1&autohide=1')"
+  const trailerRx = /cargarTrailer\s*\(\s*['"]([^'"]+)['"]\s*\)/;
+  const trailerM  = h.match(trailerRx);
+  if (trailerM) result.trailerUrl = trailerM[1].trim();
+
+  // ── 6. DESCARGAS FALLBACK — links directos ───────────────────────
+  if (result.descargas.length === 0) {
+    const descRx = /href=["'](https?:\/\/(?:mega\.nz|mediafire\.com|drive\.google\.com|1fichier\.com|solidfiles\.com|gofile\.io|pixeldrain\.com)[^"']+)["']/gi;
+    let dm;
+    while ((dm = descRx.exec(h)) !== null) {
+      result.descargas.push({ name: 'Descarga directa', url: dm[1], quality: 'HD', type: 'download' });
+    }
+  }
+
+  // ── 7. SINOPSIS desde <p class="sinopsis"> ───────────────────────
+  const sinopsisRx = /<p[^>]+class=["'][^"']*sinopsis[^"']*["'][^>]*>([\s\S]*?)<\/p>/i;
+  const sinopsisM  = h.match(sinopsisRx);
+  if (sinopsisM) {
+    result.sinopsis = sinopsisM[1]
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .trim();
+  }
+
+  // ── 8. IMAGEN DE PORTADA desde el HTML de la página ─────────────
+  // Estructura 1: <div class="columna imagen"><img src="URL" alt="..."></div>
+  // Estructura 2: <div class="Image"><figure class="Objf"><img id="cpt" src="URL" ...></figure></div>
+  let scrapedPoster = null;
+
+  // Intentar estructura 1: .columna.imagen > img
+  const columnaRx = /<div[^>]+class=["'][^"']*columna[^"']*imagen[^"']*["'][^>]*>[\s\S]{0,300}?<img[^>]+src=["']([^"']+)["'][^>]*>/i;
+  const columnaM  = h.match(columnaRx);
+  if (columnaM && columnaM[1] && !columnaM[1].includes('ejemplo') && columnaM[1].startsWith('http')) {
+    scrapedPoster = columnaM[1].trim();
+  }
+
+  // Intentar estructura 2: img#cpt dentro de .Objf
+  if (!scrapedPoster) {
+    const cptRx  = /<img[^>]+id=["']cpt["'][^>]+src=["']([^"']+)["'][^>]*>/i;
+    const cptRx2 = /<img[^>]+src=["']([^"']+)["'][^>]+id=["']cpt["'][^>]*>/i;
+    const cptM = h.match(cptRx) || h.match(cptRx2);
+    if (cptM && cptM[1] && !cptM[1].includes('ejemplo') && cptM[1].startsWith('http')) {
+      scrapedPoster = cptM[1].trim();
+    }
+  }
+
+  // Intentar: primer img dentro de figure.Objf (sin id específico)
+  if (!scrapedPoster) {
+    const objfRx = /<figure[^>]+class=["'][^"']*Objf[^"']*["'][^>]*>[\s\S]{0,300}?<img[^>]+src=["']([^"']+)["']/i;
+    const objfM  = h.match(objfRx);
+    if (objfM && objfM[1] && !objfM[1].includes('ejemplo') && objfM[1].startsWith('http')) {
+      scrapedPoster = objfM[1].trim();
+    }
+  }
+
+  if (scrapedPoster) {
+    result.scrapedPoster = scrapedPoster;
+    console.log(`🖼️ Portada extraída del HTML: ${scrapedPoster}`);
+  }
+
+  console.log(
+    `📦 "${slug}" →`,
+    `iframe: ${mainVideoUrl ? '✅' : '❌'}`,
+    `idiomaActivo: ${activeAudioLang}`,
+    `| latino: ${result.latino.length}`,
+    `esp: ${result.espanol.length}`,
+    `sub: ${result.subtitulada.length}`,
+    `desc: ${result.descargas.length}`,
+    `trailer: ${result.trailerUrl ? '✅' : '❌'}`
+  );
+  return result;
+}
+
+async function loadMovieServers(slug) {
+  if (movieServerCache[slug]) return movieServerCache[slug];
+
+  showToast('Cargando servidores...', 5000);
+  const html    = await fetchMoviePage(slug);
+  const scraped = scrapeServersFromHTML(html, slug);
+
+  const total = scraped.latino.length + scraped.espanol.length + scraped.subtitulada.length;
+
+  if (total === 0) {
+    // Fallback total: ofrecer abrir en el sitio original
+    const pageUrl = `https://pelisjuanita.com/movies/pelicula/${slug}`;
+    scraped.latino = [{ name: '▶ Ver en PelisJuanita', url: pageUrl, quality: 'HD' }];
+    showToast('⚠️ No se encontraron servidores', 3000);
+  } else {
+    showToast('', 0);
+    // Heredar sólo si ese idioma está completamente vacío
+    // Prioridad: el que tenga más servidores como fuente
+    const fallbackList = scraped.latino.length > 0 ? scraped.latino
+                       : scraped.espanol.length > 0 ? scraped.espanol
+                       : scraped.subtitulada;
+    if (scraped.espanol.length === 0)     scraped.espanol     = [...fallbackList];
+    if (scraped.subtitulada.length === 0) scraped.subtitulada = [...fallbackList];
+    if (scraped.latino.length === 0)      scraped.latino      = [...fallbackList];
+  }
+
+  movieServerCache[slug] = scraped;
+
+  // ── Guardar portada raspada en el objeto movie (si existe) ──────
+  if (scraped.scrapedPoster) {
+    const movieObj = allMovies.find(m => m.slug === slug);
+    if (movieObj && !movieObj.scrapedPoster) {
+      movieObj.scrapedPoster = scraped.scrapedPoster;
+    }
+  }
+
+  return scraped;
+}
+
+function applyMovieServers(servers) {
+  ALL_SERVERS = servers;
+  SERVER_URLS = {
+    latino:      servers.latino?.[0]?.url      || '',
+    espanol:     servers.espanol?.[0]?.url     || '',
+    subtitulada: servers.subtitulada?.[0]?.url || ''
+  };
+  const trailerBtn = document.getElementById('trailerBtn');
+  if (trailerBtn) {
+    trailerBtn.dataset.trailerUrl = servers.trailerUrl || '';
+    // El btn de trailer siempre se muestra (TMDB o scraped)
+  }
+}
+
+const GENRE_NAMES = {28:'Acción',12:'Aventura',16:'Animación',35:'Comedia',80:'Crimen',99:'Documental',18:'Drama',10751:'Familia',14:'Fantasía',36:'Historia',27:'Terror',10402:'Música',9648:'Misterio',10749:'Romance',878:'Sci-Fi',53:'Thriller',10752:'Bélica',37:'Western'};
+
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let allMovies = [];
+let filteredMovies = [];
+let currentPage = 1;
+let currentYearFilter = 'all';
+let currentGenreFilter = 'all';
+let currentNavFilter = 'all';
+let currentModalSlug = null;
+let currentModalUrl = null;
+let currentModalTmdbId = null;
+let currentAudio = 'latino';
+let tmdbCache = {};
+let searchTimer = null;
+let imagesLoaded = 0;
+
+/* ═══════════════════════════════════════
+   UTILS
+═══════════════════════════════════════ */
+function slugToTitle(slug) {
+  return slug.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function extractYearFromSlug(slug) {
+  const match = slug.match(/(\d{4})/);
+  return match ? parseInt(match[1]) : null;
+}
+
+function buildImageUrl(path, size='w342') {
+  if (!path) return null;
+  return `${TMDB_IMAGE_BASE}${size}${path}`;
+}
+
+function showToast(msg, ms=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), ms);
+}
+
+function updateLoadingProgress(percent) {
+  const fill = document.getElementById('loadingBarFill');
+  if (fill) fill.style.width = `${percent}%`;
+}
+
+/* ═══════════════════════════════════════
+   SITEMAP → JSON COMPLETO
+   Convierte sitemap-peliculas.php a JSON en memoria.
+   Estructura de salida:
+   {
+     slug: string,
+     title: string,
+     year: number|null,
+     url: string,   ← URL completa en pelisjuanita.com
+     date: string   ← fecha de última modificación
+   }
+   El formato del sitemap es:
+   https://pelisjuanita.com/movies/pelicula/[slug]\t[fecha]\t[prioridad]
+═══════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   CARGA DEL SITEMAP LOCAL → JSON
+═══════════════════════════════════════ */
+/* ── Rutas a intentar en orden ──────────────────────────────────────
+   Si el HTML está en un servidor local (http://localhost o 127.0.0.1),
+   los fetch() funcionan normalmente.
+   Si se abre como file:// los fetch() están bloqueados por seguridad
+   del navegador — en ese caso saltamos directo al selector de archivo.
+─────────────────────────────────────────────────────────────────── */
+function buildLocalPaths() {
+  const base = window.location.href.replace(/[^/]*$/, ''); // carpeta del HTML
+  const names = ['sitemap-peliculas.php', 'sitemap-peliculas.xml', 'sitemap-peliculas.txt'];
+  const paths = [];
+  for (const n of names) {
+    paths.push(n);              // relativa
+    paths.push(base + n);       // absoluta desde la misma carpeta
+  }
+  return paths;
+}
+
+async function tryLocalFetch(path) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    const res = await fetch(path + (path.includes('?') ? '&' : '?') + '_=' + Date.now(), {
+      signal: ctrl.signal,
+      cache:  'no-store'
+    });
+    clearTimeout(tid);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    if (!text || text.trim().length < 30) throw new Error('vacío');
+    return text;
+  } catch(e) {
+    clearTimeout(tid);
+    throw e;
+  }
+}
+
+async function loadAndParseSitemapPHP() {
+  updateLoadingProgress(10);
+
+  // ── Si el archivo se abre como file://, fetch() está bloqueado ──
+  if (window.location.protocol === 'file:') {
+    console.warn('⚠️ Protocolo file:// — fetch local bloqueado por el navegador.');
+    const sub = document.getElementById('loadingSub');
+    if (sub) sub.textContent = 'Abrí el HTML desde un servidor local (no file://)';
+    return [];
+  }
+
+  // ── Intentar rutas locales ───────────────────────────────────────
+  const paths = buildLocalPaths();
+  for (const path of paths) {
+    try {
+      const sub = document.getElementById('loadingSub');
+      if (sub) sub.textContent = 'Buscando sitemap...';
+      console.log('📂 Intentando:', path);
+      const text = await tryLocalFetch(path);
+      console.log(`✅ Cargado: ${path} (${text.length} bytes)`);
+      updateLoadingProgress(50);
+      const json = parseSitemapToJSON(text);
+      if (json.length > 0) {
+        console.log(`🎬 ${json.length} películas parseadas`);
+        updateLoadingProgress(75);
+        return json;
+      }
+      console.warn(`⚠️ ${path} cargó pero parseó 0 películas`);
+    } catch(e) {
+      console.warn(`❌ ${path}: ${e.message}`);
+    }
+  }
+
+  console.warn('⚠️ No se encontró sitemap');
+  return [];
+}
+
+/* Muestra el selector de archivo flotante (no bloquea la app, ya cargada con demo) */
+function showFilePicker() {
+  // Crear overlay flotante si no existe
+  let overlay = document.getElementById('filePickerOverlay');
+  if (overlay) { overlay.style.display = 'flex'; return; }
+
+  overlay = document.createElement('div');
+  overlay.id = 'filePickerOverlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:400;
+    background:rgba(0,0,0,0.82);backdrop-filter:blur(10px);
+    display:flex;align-items:center;justify-content:center;padding:24px;
+  `;
+  overlay.innerHTML = `
+    <div style="
+      background:var(--surface);border-radius:16px;border:1px solid var(--border);
+      width:100%;max-width:440px;padding:32px;text-align:center;
+      animation:modalIn 0.25s ease;
+    ">
+      <div style="font-size:42px;margin-bottom:12px">🎬</div>
+      <h2 style="font-family:var(--font-title);font-size:22px;letter-spacing:1px;margin-bottom:8px">
+        CARGAR CATÁLOGO
+      </h2>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px">
+        Seleccioná tu archivo <strong style="color:var(--text)">sitemap-peliculas.php</strong> o <strong style="color:var(--text)">.xml</strong> para cargar todas las películas.
+        También podés arrastrarlo a esta ventana.
+      </p>
+      <label id="filePickerLabel" style="
+        display:inline-flex;align-items:center;gap:8px;
+        background:var(--accent);color:#fff;
+        padding:12px 28px;border-radius:9px;
+        font-family:var(--font-body);font-size:14px;font-weight:600;
+        cursor:pointer;transition:background 0.2s;margin-bottom:16px;
+      ">
+        <i class="fas fa-folder-open"></i> Seleccionar archivo
+        <input type="file" id="mainFileInput" accept=".php,.xml,.txt,.php7,.php5" style="display:none">
+      </label>
+      <br>
+      <button onclick="document.getElementById('filePickerOverlay').style.display='none'" style="
+        background:none;border:1px solid var(--border);color:var(--muted);
+        border-radius:8px;padding:8px 20px;font-size:12px;
+        cursor:pointer;font-family:var(--font-body);transition:all 0.2s;
+      ">Cerrar (usar catálogo demo)</button>
+      <p id="filePickerStatus" style="font-size:11px;color:var(--muted);margin-top:12px;min-height:16px"></p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Drag & drop sobre el overlay
+  overlay.addEventListener('dragover', e => { e.preventDefault(); overlay.style.borderColor = 'var(--accent)'; });
+  overlay.addEventListener('dragleave', () => { overlay.style.borderColor = ''; });
+  overlay.addEventListener('drop', e => {
+    e.preventDefault();
+    overlay.style.borderColor = '';
+    const file = e.dataTransfer?.files[0];
+    if (file) handlePickedFile(file);
+  });
+
+  document.getElementById('mainFileInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) handlePickedFile(file);
+  });
+}
+
+function handlePickedFile(file) {
+  const status = document.getElementById('filePickerStatus');
+  if (status) status.textContent = `Leyendo ${file.name}...`;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const json = parseSitemapToJSON(e.target.result);
+    if (json.length > 0) {
+      // ── Persistir en localStorage para no pedir reimportar ──
+      try {
+        localStorage.setItem('miraStored_sitemap', JSON.stringify(json));
+        localStorage.setItem('miraStored_fileName', file.name);
+        localStorage.setItem('miraStored_date', new Date().toISOString());
+      } catch(e) { console.warn('localStorage lleno, no se pudo persistir sitemap'); }
+
+      allMovies = json;
+      filteredMovies = [...json];
+      currentPage = 1;
+      renderGrid();
+      setHero(json);
+      document.getElementById('pageInfo').textContent = `${json.length.toLocaleString()} películas`;
+      document.getElementById('filePickerOverlay').style.display = 'none';
+      showToast(`✅ ${json.length} películas cargadas`);
+      // Precargar TMDB primeras 20
+      (async () => {
+        for (let i = 0; i < Math.min(20, json.length); i++) {
+          if (!json[i].tmdb) fetchTMDB(json[i].slug).then(t => { json[i].tmdb = t; });
+          await new Promise(r => setTimeout(r, 80));
+        }
+      })();
+    } else {
+      if (status) status.textContent = '⚠️ El archivo no contiene películas válidas. Probá con otro.';
+    }
+  };
+  reader.onerror = () => { if (status) status.textContent = '❌ Error al leer el archivo.'; };
+  reader.readAsText(file, 'utf-8');
+}
+
+/**
+ * Convierte el sitemap (texto plano O XML) a array JSON de películas.
+ * Formato texto: URL\tfecha\tprioridad
+ * Formato XML:   <url><loc>...</loc><lastmod>...</lastmod></url>
+ */
+function parseSitemapToJSON(rawText) {
+  const trimmed = rawText.trim();
+  const isXML = trimmed.startsWith('<?xml') || trimmed.startsWith('<urlset') || trimmed.startsWith('<sitemapindex');
+
+  const moviesMap = new Map();
+  const urlRegex = /[^\/\s"<>]+\/pelicula\/([a-zA-Z0-9][a-zA-Z0-9\-]*)/;
+
+  if (isXML) {
+    // ── Parseo XML ──────────────────────────────────────────
+    // Extraer todos los bloques <url>…</url>
+    const urlBlocks = trimmed.match(/<url>[\s\S]*?<\/url>/gi) || [];
+    for (const block of urlBlocks) {
+      const locMatch  = block.match(/<loc>([\s\S]*?)<\/loc>/i);
+      const dateMatch = block.match(/<lastmod>([\s\S]*?)<\/lastmod>/i);
+      if (!locMatch) continue;
+      const rawUrl = locMatch[1].trim();
+      const date   = dateMatch ? dateMatch[1].trim().substring(0, 10) : '';
+      const m = rawUrl.match(urlRegex);
+      if (!m) continue;
+      const slug = m[1];
+      if (!moviesMap.has(slug)) {
+        moviesMap.set(slug, { slug, title: slugToTitle(slug), year: extractYearFromSlug(slug), url: rawUrl, date });
+      } else if (date > (moviesMap.get(slug).date || '')) {
+        moviesMap.get(slug).date = date;
+      }
+    }
+    // Si el XML no trajo nada (quizá es un sitemapindex), intentar extraer <loc> sueltos
+    if (moviesMap.size === 0) {
+      const locs = trimmed.match(/<loc>([\s\S]*?)<\/loc>/gi) || [];
+      for (const loc of locs) {
+        const rawUrl = loc.replace(/<\/?loc>/gi, '').trim();
+        const m = rawUrl.match(urlRegex);
+        if (!m) continue;
+        const slug = m[1];
+        if (!moviesMap.has(slug))
+          moviesMap.set(slug, { slug, title: slugToTitle(slug), year: extractYearFromSlug(slug), url: rawUrl, date: '' });
+      }
+    }
+  } else {
+    // ── Parseo texto plano ───────────────────────────────────
+    const lines = trimmed.split(/\r?\n/);
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t || t.startsWith('#') || t.startsWith('<')) continue;
+      const parts = t.split(/\t+|\s{2,}/);
+      const rawUrl = (parts[0] || '').trim();
+      const date   = (parts[1] || '').trim().substring(0, 10);
+      const m = rawUrl.match(urlRegex);
+      if (!m) continue;
+      const slug = m[1];
+      if (!moviesMap.has(slug)) {
+        moviesMap.set(slug, { slug, title: slugToTitle(slug), year: extractYearFromSlug(slug), url: rawUrl, date });
+      } else if (date > (moviesMap.get(slug).date || '')) {
+        moviesMap.get(slug).date = date;
+      }
+    }
+  }
+
+  const movies = Array.from(moviesMap.values());
+  movies.sort((a, b) => {
+    if (a.date && b.date) return b.date.localeCompare(a.date);
+    if (a.date) return -1; if (b.date) return 1;
+    return (b.year || 0) - (a.year || 0) || a.slug.localeCompare(b.slug);
+  });
+  return movies;
+}
+
+/* ═══════════════════════════════════════
+   BÚSQUEDA EN CATÁLOGO LOCAL
+═══════════════════════════════════════ */
+function searchInCatalog(query) {
+  if (!query || query.length < 2) return [];
+  
+  const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  
+  return allMovies.filter(movie => {
+    const title = movie.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const slugClean = movie.slug.replace(/-/g,' ').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return title.includes(q) || slugClean.includes(q);
+  }).slice(0, 12);
+}
+
+/* ═══════════════════════════════════════
+   TMDB API con caché
+═══════════════════════════════════════ */
+async function fetchTMDB(slug) {
+  if (tmdbCache[slug] !== undefined) return tmdbCache[slug];
+  
+  const query = slugToTitle(slug);
+  const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&language=es-ES`;
+  
+  try {
+    const res = await fetch(url);
+    if (!res.ok) { 
+      tmdbCache[slug] = null; 
+      return null; 
+    }
+    const data = await res.json();
+    const result = data.results && data.results.length > 0 ? data.results[0] : null;
+    tmdbCache[slug] = result;
+    return result;
+  } catch(e) { 
+    tmdbCache[slug] = null; 
+    return null; 
+  }
+}
+
+/* ═══════════════════════════════════════
+   CARGA DE IMÁGENES — RÁPIDA Y SIN ERRORES 404
+   Usa IntersectionObserver para cargar solo las visibles.
+   Muestra shimmer animado hasta que la imagen carga.
+   Si hay 404 → imagen fallback elegante, sin consola roja.
+═══════════════════════════════════════ */
+const imageObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const card = entry.target;
+    const pendingSrc = card.dataset.pendingSrc;
+    if (!pendingSrc) return;
+    imageObserver.unobserve(card);
+    delete card.dataset.pendingSrc;
+
+    const img     = card.querySelector('img.card-img');
+    const shimmer = card.querySelector('.shimmer');
+    if (img) _loadImg(img, pendingSrc, shimmer);
+  });
+}, { rootMargin: '200px 0px', threshold: 0 });
+
+function _loadImg(img, src, shimmer) {
+  // Usar un Image auxiliar para no mostrar el broken-image nativo
+  const probe = new Image();
+  probe.onload = () => {
+    img.src = src;
+    img.style.opacity = '1';
+    shimmer?.remove();
+    imagesLoaded++;
+  };
+  probe.onerror = () => {
+    shimmer?.remove();
+    img.src = FALLBACK_IMAGE;
+    img.style.opacity = '0.55';
+    imagesLoaded++;
+  };
+  probe.src = src;
+}
+
+function loadImageWithFallback(imgElement, src, shimmerElement) {
+  if (!src) {
+    shimmerElement?.remove();
+    imgElement.src = FALLBACK_IMAGE;
+    imgElement.style.opacity = '0.55';
+    return;
+  }
+  _loadImg(imgElement, src, shimmerElement);
+}
+
+function scheduleCardImage(card, src) {
+  if (!src) {
+    const shimmer = card.querySelector('.shimmer');
+    const img     = card.querySelector('img.card-img');
+    shimmer?.remove();
+    if (img) { img.src = FALLBACK_IMAGE; img.style.opacity = '0.55'; }
+    return;
+  }
+  card.dataset.pendingSrc = src;
+  imageObserver.observe(card);
+}
+
+/* ═══════════════════════════════════════
+   GRID RENDER
+═══════════════════════════════════════ */
+function renderGrid() {
+  const grid = document.getElementById('moviesGrid');
+  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+  const end = start + ITEMS_PER_PAGE;
+  const pageMovies = filteredMovies.slice(start, end);
+
+  grid.innerHTML = '';
+
+  if (pageMovies.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.3"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="m9 12 2 2 4-4"/></svg>
+        <p>Sin resultados</p>
+        <small>No se encontraron películas con ese filtro.</small>
+      </div>`;
+    document.getElementById('pageInfo').textContent = '0 películas';
+    renderPagination();
+    return;
+  }
+
+  pageMovies.forEach((movie) => {
+    const card = document.createElement('div');
+    card.className = 'movie-card';
+    card.dataset.slug = movie.slug;
+    const title = movie.tmdb?.title || movie.title;
+    const year = movie.year || '';
+    const isNew = year >= 2025;
+
+    card.innerHTML = `
+      <div class="shimmer"></div>
+      <img class="card-img" src="" alt="${escapeHtml(title)}" style="opacity:0;transition:opacity 0.35s ease;width:100%;height:100%;object-fit:cover;display:block">
+      <div class="movie-overlay">
+        <div class="movie-card-title">${escapeHtml(title)}</div>
+        <div class="movie-card-year">${year}</div>
+      </div>
+      ${movie.tmdb?.vote_average ? `<div class="movie-card-rating">★ ${movie.tmdb.vote_average.toFixed(1)}</div>` : ''}
+      ${isNew ? '<div class="movie-card-badge">NUEVO</div>' : ''}
+      <div class="movie-card-hd">HD</div>
+    `;
+
+    card.addEventListener('click', () => openMovie(movie));
+    grid.appendChild(card);
+
+    // Decide source and schedule lazy load
+    if (movie.tmdb?.poster_path) {
+      scheduleCardImage(card, buildImageUrl(movie.tmdb.poster_path, 'w342'));
+    } else if (movie.scrapedPoster) {
+      // Usar portada raspada del sitio si TMDB no tiene imagen
+      scheduleCardImage(card, movie.scrapedPoster);
+    } else if (movie.tmdb === undefined) {
+      // Fetch TMDB then schedule
+      fetchTMDB(movie.slug).then(tmdb => {
+        movie.tmdb = tmdb;
+        const src = tmdb?.poster_path ? buildImageUrl(tmdb.poster_path, 'w342') : (movie.scrapedPoster || null);
+        scheduleCardImage(card, src);
+        // update title/year in overlay if needed
+        if (tmdb?.title) {
+          const titleEl = card.querySelector('.movie-card-title');
+          if (titleEl) titleEl.textContent = tmdb.title;
+        }
+      });
+    } else {
+      scheduleCardImage(card, movie.scrapedPoster || null);
+    }
+  });
+
+  renderPagination();
+  const total = filteredMovies.length;
+  document.getElementById('pageInfo').textContent =
+    `Página ${currentPage} de ${Math.ceil(total/ITEMS_PER_PAGE)} · ${total.toLocaleString()} películas`;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+/* ═══════════════════════════════════════
+   PAGINATION
+═══════════════════════════════════════ */
+function renderPagination() {
+  const totalPages = Math.ceil(filteredMovies.length / ITEMS_PER_PAGE);
+  const pag = document.getElementById('pagination');
+  pag.innerHTML = '';
+  if (totalPages <= 1) return;
+
+  const mkBtn = (label, page, disabled=false, active=false) => {
+    const b = document.createElement('button');
+    b.className = `page-btn${active?' active':''}`;
+    b.textContent = label;
+    b.disabled = disabled;
+    b.onclick = () => { currentPage = page; renderGrid(); scrollToMovies(); };
+    return b;
+  };
+
+  pag.appendChild(mkBtn('← Anterior', currentPage-1, currentPage===1));
+
+  const range = getPaginationRange(currentPage, totalPages);
+  range.forEach(p => {
+    if (p === '...') {
+      const d = document.createElement('span');
+      d.className = 'page-dots'; d.textContent = '…';
+      pag.appendChild(d);
+    } else {
+      pag.appendChild(mkBtn(p, p, false, p===currentPage));
+    }
+  });
+
+  pag.appendChild(mkBtn('Siguiente →', currentPage+1, currentPage===totalPages));
+}
+
+function getPaginationRange(cur, total) {
+  if (total <= 7) return Array.from({length:total},(_,i)=>i+1);
+  if (cur <= 4) return [1,2,3,4,5,'...',total];
+  if (cur >= total-3) return [1,'...',total-4,total-3,total-2,total-1,total];
+  return [1,'...',cur-1,cur,cur+1,'...',total];
+}
+
+function scrollToMovies() {
+  document.getElementById('moviesSection').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ═══════════════════════════════════════
+   FILTERS
+═══════════════════════════════════════ */
+function applyYearFilter(btn, filter) {
+  document.querySelectorAll('#yearFilters .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentYearFilter = filter;
+  currentPage = 1;
+  applyAllFilters();
+}
+
+function applyGenreFilter(btn, genreId) {
+  document.querySelectorAll('#genreRow .genre-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentGenreFilter = genreId;
+  currentPage = 1;
+  applyAllFilters();
+}
+
+function setNav(btn, type) {
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentNavFilter = type;
+  currentPage = 1;
+  applyAllFilters();
+  scrollToMovies();
+}
+
+function applyAllFilters() {
+  let movies = [...allMovies];
+
+  if (currentNavFilter === 'recent') movies = movies.filter(m => m.year && m.year >= 2023);
+  else if (currentNavFilter === 'classic') movies = movies.filter(m => m.year && m.year < 1990);
+  else if (currentNavFilter === 'top') movies = movies.filter(m => m.tmdb && m.tmdb.vote_average >= 7.5);
+
+  if (currentYearFilter !== 'all') {
+    if (currentYearFilter === 'classic') movies = movies.filter(m => m.year && m.year < 2000);
+    else if (currentYearFilter === '2020s') movies = movies.filter(m => m.year && m.year >= 2020 && m.year < 2030);
+    else if (currentYearFilter === '2010s') movies = movies.filter(m => m.year && m.year >= 2010 && m.year < 2020);
+    else if (currentYearFilter === '2000s') movies = movies.filter(m => m.year && m.year >= 2000 && m.year < 2010);
+    else { const y = parseInt(currentYearFilter); movies = movies.filter(m => m.year === y); }
+  }
+
+  if (currentGenreFilter !== 'all') {
+    const gid = parseInt(currentGenreFilter);
+    movies = movies.filter(m => m.tmdb && m.tmdb.genre_ids && m.tmdb.genre_ids.includes(gid));
+  }
+
+  filteredMovies = movies;
+  renderGrid();
+}
+
+/* ═══════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════ */
+document.getElementById('searchInput').addEventListener('input', e => {
+  const q = e.target.value.trim();
+  document.getElementById('searchClear').style.display = q ? 'block' : 'none';
+  clearTimeout(searchTimer);
+  if (q.length < 2) { closeSearchDropdown(); return; }
+  searchTimer = setTimeout(() => performSearch(q), 200);
+});
+
+async function performSearch(q) {
+  const dropdown = document.getElementById('searchDropdown');
+  const header = document.getElementById('searchDropdownHeader');
+  const list = document.getElementById('searchDropdownList');
+
+  dropdown.classList.add('open');
+  header.textContent = `Buscando "${q}"...`;
+  list.innerHTML = `<div class="search-loading"><i class="fas fa-spinner fa-spin"></i> Buscando en el catálogo...</div>`;
+
+  const localResults = searchInCatalog(q);
+  
+  header.textContent = `${localResults.length} resultado${localResults.length !== 1 ? 's' : ''} para "${q}"`;
+
+  if (localResults.length === 0) {
+    list.innerHTML = `<div class="no-results">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.3" style="margin:0 auto 10px;display:block"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      No se encontraron películas para "<strong>${escapeHtml(q)}</strong>"
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = '';
+  
+  for (const movie of localResults) {
+    if (!movie.tmdb) {
+      movie.tmdb = await fetchTMDB(movie.slug);
+    }
+    
+    const tmdb = movie.tmdb;
+    const title = tmdb?.title || movie.title;
+    const year = movie.year || '';
+    const rating = tmdb?.vote_average ? `★ ${tmdb.vote_average.toFixed(1)}` : '';
+    const poster = tmdb?.poster_path ? buildImageUrl(tmdb.poster_path, 'w92') : '';
+
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    item.innerHTML = `
+      <img class="search-result-img" src="${poster || FALLBACK_IMAGE}" alt="${escapeHtml(title)}" onerror="this.src='${FALLBACK_IMAGE}'">
+      <div>
+        <div class="search-result-title">${escapeHtml(title)}</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span class="search-result-year">${year}</span>
+          ${rating ? `<span class="search-result-rating">${rating}</span>` : ''}
+        </div>
+      </div>
+    `;
+    item.onclick = () => {
+      closeSearchDropdown();
+      document.getElementById('searchInput').value = '';
+      document.getElementById('searchClear').style.display = 'none';
+      openMovie(movie);
+    };
+    list.appendChild(item);
+  }
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  closeSearchDropdown();
+}
+
+function closeSearchDropdown() {
+  document.getElementById('searchDropdown').classList.remove('open');
+}
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('headerSearch').contains(e.target)) {
+    closeSearchDropdown();
+  }
+});
+
+/* Muestra un placeholder cuando no hay servidor embebible */
+function showVideoPlaceholder(slug, url) {
+  const vc = document.getElementById('videoContainer');
+  const pageUrl = url || `https://pelisjuanita.com/movies/pelicula/${slug}`;
+  // Insertar un div encima del iframe
+  let ph = document.getElementById('videoPlaceholder');
+  if (!ph) {
+    ph = document.createElement('div');
+    ph.id = 'videoPlaceholder';
+    ph.style.cssText = `
+      position:absolute;inset:0;z-index:5;
+      background:var(--surface2);
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:14px;
+      text-align:center;padding:24px;
+    `;
+    vc.appendChild(ph);
+  }
+  ph.style.display = 'flex';
+  ph.innerHTML = `
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <p style="font-size:13px;color:var(--muted);margin:0">No se pudo cargar el reproductor embebido.<br>El proxy CORS no devolvió los servidores.</p>
+    <a href="${pageUrl}" target="_blank" rel="noopener" style="
+      display:inline-flex;align-items:center;gap:7px;
+      background:var(--accent);color:#fff;
+      border-radius:8px;padding:10px 20px;
+      font-size:13px;font-weight:600;text-decoration:none;
+      font-family:var(--font-body);transition:background 0.2s;
+    "><i class="fas fa-external-link-alt"></i> Ver en PelisJuanita</a>
+  `;
+}
+
+function hideVideoPlaceholder() {
+  const ph = document.getElementById('videoPlaceholder');
+  if (ph) ph.style.display = 'none';
+}
+
+/* ── Carga imagen de modal con shimmer y fade-in ── */
+function loadModalImage(imgEl, shimmerEl, src) {
+  if (!src) { shimmerEl?.classList.add('loaded'); return; }
+  const probe = new Image();
+  probe.onload = () => {
+    imgEl.src = src;
+    imgEl.classList.add('loaded');
+    shimmerEl?.classList.add('loaded');
+  };
+  probe.onerror = () => {
+    shimmerEl?.classList.add('loaded');
+  };
+  probe.src = src;
+}
+
+/* ═══════════════════════════════════════
+   MOVIE MODAL
+═══════════════════════════════════════ */
+async function openMovie(movie) {
+  const { slug, url, year } = movie;
+  currentModalSlug = slug;
+  currentModalUrl  = url;
+  currentModalTmdbId = null;
+  currentAudio = 'latino';
+
+  // Reset UI del modal
+  const iframe       = document.getElementById('if-video');
+  const trailerBtn   = document.getElementById('trailerBtn');
+  const serverCont   = document.getElementById('serverContainer');
+  const modal        = document.getElementById('movieModal');
+
+  iframe.src = '';
+  if (trailerBtn) { trailerBtn.style.display = 'none'; trailerBtn.dataset.trailerUrl = ''; }
+  hideVideoPlaceholder();
+  serverCont.style.opacity = '0.5';
+  serverCont.style.pointerEvents = 'none';
+
+  // Marcar botón latino como activo por defecto
+  document.querySelectorAll('.contenedor .itemServer').forEach(b => b.classList.remove('active-server'));
+  document.querySelector('.contenedor .itemServer[onclick="setAudio(\'latino\')"]')?.classList.add('active-server');
+
+  document.getElementById('modalTitle').textContent  = movie.title;
+  document.getElementById('modalDesc').textContent   = 'Cargando información...';
+  document.getElementById('modalRating').textContent = '';
+  document.getElementById('modalYear').textContent   = year || '';
+  document.getElementById('modalTags').innerHTML     = '';
+
+  // Reset portadas con shimmer
+  const modalBg          = document.getElementById('modalBg');
+  const modalPoster      = document.getElementById('modalPoster');
+  const bgShimmer        = document.getElementById('modalBgShimmer');
+  const posterShimmer    = document.getElementById('modalPosterShimmer');
+  modalBg.src            = '';
+  modalBg.classList.remove('loaded');
+  modalPoster.src        = '';
+  modalPoster.classList.remove('loaded');
+  bgShimmer.classList.remove('loaded');
+  posterShimmer.classList.remove('loaded');
+
+  // Mostrar spinner de carga de video
+  iframe.src = 'about:blank';
+  const videoContainer = document.getElementById('videoContainer');
+  videoContainer.setAttribute('data-loading', '1');
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // ── Cargar servidores (scraping CORS) en paralelo con TMDB ───────
+  const [servers, tmdb] = await Promise.all([
+    loadMovieServers(slug),
+    (movie.tmdb ? Promise.resolve(movie.tmdb) : fetchTMDB(slug))
+  ]);
+
+  // Guardar para uso posterior
+  if (tmdb) movie.tmdb = tmdb;
+
+  // Solo aplicar si este modal sigue siendo para esta misma película
+  if (currentModalSlug !== slug) return;
+
+  // ── Aplicar servidores ────────────────────────────────────────────
+  applyMovieServers(servers);
+  serverCont.style.opacity = '1';
+  serverCont.style.pointerEvents = '';
+  videoContainer.removeAttribute('data-loading');
+
+  const videoUrl = SERVER_URLS[currentAudio] || SERVER_URLS.latino || SERVER_URLS.espanol || SERVER_URLS.subtitulada;
+  if (videoUrl && !videoUrl.includes('pelisjuanita.com/movies/pelicula')) {
+    iframe.src = videoUrl;
+  } else {
+    // Sin servidor embebible → mostrar placeholder con botón de abrir
+    iframe.src = 'about:blank';
+    showVideoPlaceholder(slug, currentModalUrl);
+  }
+
+  // Trailer: mostrar btn siempre (trailerUrl scraped o TMDB)
+  if (trailerBtn) trailerBtn.style.display = 'flex';
+
+  // ── Aplicar datos TMDB ───────────────────────────────────────────
+  if (tmdb) {
+    currentModalTmdbId = tmdb.id;
+    document.getElementById('modalTitle').textContent = tmdb.title || movie.title;
+    const overview = tmdb.overview || servers.sinopsis || 'Sin descripción disponible.';
+    document.getElementById('modalDesc').textContent  = overview;
+    const yr = tmdb.release_date ? tmdb.release_date.substring(0,4) : (year || '');
+    document.getElementById('modalYear').textContent  = yr;
+    if (tmdb.vote_average && tmdb.vote_average > 0)
+      document.getElementById('modalRating').textContent = `★ ${tmdb.vote_average.toFixed(1)}`;
+    if (tmdb.poster_path)
+      loadModalImage(
+        document.getElementById('modalPoster'),
+        document.getElementById('modalPosterShimmer'),
+        buildImageUrl(tmdb.poster_path, 'w342')
+      );
+    else if (movie.scrapedPoster || servers.scrapedPoster)
+      loadModalImage(
+        document.getElementById('modalPoster'),
+        document.getElementById('modalPosterShimmer'),
+        movie.scrapedPoster || servers.scrapedPoster
+      );
+    if (tmdb.backdrop_path || tmdb.poster_path)
+      loadModalImage(
+        document.getElementById('modalBg'),
+        document.getElementById('modalBgShimmer'),
+        buildImageUrl(tmdb.backdrop_path || tmdb.poster_path, 'w780')
+      );
+    else if (movie.scrapedPoster || servers.scrapedPoster)
+      loadModalImage(
+        document.getElementById('modalBg'),
+        document.getElementById('modalBgShimmer'),
+        movie.scrapedPoster || servers.scrapedPoster
+      );
+    if (tmdb.genre_ids) {
+      const tagsEl = document.getElementById('modalTags');
+      tagsEl.innerHTML = '';
+      tmdb.genre_ids.slice(0,4).forEach(id => {
+        if (GENRE_NAMES[id]) {
+          const t = document.createElement('span');
+          t.className = 'modal-tag'; t.textContent = GENRE_NAMES[id];
+          tagsEl.appendChild(t);
+        }
+      });
+    }
+  } else {
+    document.getElementById('modalTitle').textContent = movie.title;
+    document.getElementById('modalDesc').textContent  = servers.sinopsis || 'Sin descripción disponible.';
+    // Usar portada raspada si no hay datos TMDB
+    const fallbackPoster = movie.scrapedPoster || servers.scrapedPoster;
+    if (fallbackPoster) {
+      loadModalImage(
+        document.getElementById('modalPoster'),
+        document.getElementById('modalPosterShimmer'),
+        fallbackPoster
+      );
+      loadModalImage(
+        document.getElementById('modalBg'),
+        document.getElementById('modalBgShimmer'),
+        fallbackPoster
+      );
+      // Guardar en movie para reutilizar en tarjetas
+      if (!movie.scrapedPoster && servers.scrapedPoster) movie.scrapedPoster = servers.scrapedPoster;
+    }
+  }
+}
+
+function setAudio(audio) {
+  currentAudio = audio;
+  document.querySelectorAll('.contenedor .itemServer').forEach(b => b.classList.remove('active-server'));
+  document.querySelector(`.contenedor .itemServer[onclick="setAudio('${audio}')"]`)?.classList.add('active-server');
+  const iframe = document.getElementById('if-video');
+  const url = SERVER_URLS[audio];
+  if (url && !url.includes('pelisjuanita.com/movies/pelicula')) {
+    hideVideoPlaceholder();
+    iframe.src = url;
+  } else {
+    showToast('No hay servidor disponible para este idioma');
+  }
+}
+
+async function loadTrailer() {
+  const iframe = document.getElementById('if-video');
+  // Usar URL de trailer raspada de la página si existe
+  const trailerBtn = document.getElementById('trailerBtn');
+  const scrapedUrl = trailerBtn?.dataset.trailerUrl;
+  if (scrapedUrl) {
+    iframe.src = scrapedUrl;
+    return;
+  }
+  if (!currentModalTmdbId) { showToast('No hay trailer disponible'); return; }
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3/movie/${currentModalTmdbId}/videos?api_key=${TMDB_KEY}&language=es-ES`);
+    const data = await res.json();
+    let trailer = data.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+    if (!trailer) {
+      const res2 = await fetch(`https://api.themoviedb.org/3/movie/${currentModalTmdbId}/videos?api_key=${TMDB_KEY}`);
+      const data2 = await res2.json();
+      trailer = data2.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+    }
+    if (trailer) {
+      iframe.src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&autohide=1`;
+    } else {
+      showToast('No se encontró trailer');
+    }
+  } catch { showToast('Error al cargar trailer'); }
+}
+
+function openMovieSite() { if (currentModalUrl) window.open(currentModalUrl, '_blank'); }
+function openDownloads() { openServersPopup(); switchServerTab('descargas'); }
+
+function buildServersList(audio) {
+  const servers = ALL_SERVERS[audio] || ALL_SERVERS.latino;
+  const list = document.getElementById('serversList');
+  list.innerHTML = '';
+  if (servers.length === 0) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted)">No hay servidores disponibles.</div>`;
+    return;
+  }
+  servers.forEach((srv, i) => {
+    const row = document.createElement('div');
+    row.className = 'server-row';
+    row.innerHTML = `<div class="server-num">${i+1}</div><span class="server-name">${srv.name}</span><span class="server-quality">${srv.quality}</span><i class="fas ${srv.type === 'download' ? 'fa-download' : 'fa-play'} server-play-icon"></i>`;
+    row.onclick = () => {
+      document.querySelectorAll('.server-row').forEach(r=>r.classList.remove('activo'));
+      row.classList.add('activo');
+      if (srv.type === 'download') window.open(srv.url, '_blank');
+      else { hideVideoPlaceholder(); document.getElementById('if-video').src = srv.url; closeServersPopup(); showToast(`Cargando: ${srv.name}`); }
+    };
+    list.appendChild(row);
+  });
+}
+
+function openServersPopup() {
+  buildServersList(currentAudio);
+  const tabs = document.querySelectorAll('.servers-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  let targetTab = Array.from(tabs).find(t => t.textContent.toLowerCase().includes(currentAudio === 'espanol' ? 'castellano' : currentAudio));
+  if (targetTab) targetTab.classList.add('active');
+  else tabs[0]?.classList.add('active');
+  document.getElementById('serversPopup').classList.add('open');
+}
+
+function closeServersPopup() { document.getElementById('serversPopup').classList.remove('open'); }
+function switchServerTab(audio) {
+  const tabs = document.querySelectorAll('.servers-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  const keyword = audio === 'espanol' ? 'castellano' : audio === 'descargas' ? 'descarga' : audio;
+  const target = Array.from(tabs).find(t => t.textContent.toLowerCase().includes(keyword));
+  if (target) target.classList.add('active');
+  buildServersList(audio);
+}
+
+document.getElementById('serversPopup').addEventListener('click', e => { if (e.target === document.getElementById('serversPopup')) closeServersPopup(); });
+function closeModal() {
+  document.getElementById('movieModal').classList.remove('open');
+  document.body.style.overflow = '';
+  document.getElementById('if-video').src = '';
+  hideVideoPlaceholder();
+  currentModalSlug = null;
+}
+document.getElementById('movieModal').addEventListener('click', e => { if (e.target === document.getElementById('movieModal')) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeServersPopup(); closeSearchDropdown(); } });
+
+/* ═══════════════════════════════════════
+   HERO — película al azar entre las más recientes
+═══════════════════════════════════════ */
+async function setHero(movies) {
+  // Tomar hasta 15 películas con fecha reciente o año >= 2024
+  let candidates = movies.filter(m => m.date || (m.year && m.year >= 2024));
+  if (!candidates.length) candidates = movies.slice(0, 15);
+
+  // Elegir verdaderamente al azar entre las primeras 15
+  const pool = candidates.slice(0, 15);
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+
+  // Mostrar título placeholder mientras carga TMDB
+  document.getElementById('heroTitle').textContent = pick.title;
+  document.getElementById('heroBadge').textContent =
+    (pick.year && pick.year >= 2026) ? 'ESTRENO 2026' : (pick.year >= 2025) ? 'ESTRENO 2025' : 'DESTACADA';
+  document.getElementById('heroPlayBtn').onclick = () => openMovie(pick);
+  document.getElementById('heroInfoBtn').onclick = () => openMovie(pick);
+
+  // Cargar datos TMDB para imagen y detalles
+  const tmdb = pick.tmdb || await fetchTMDB(pick.slug);
+  if (tmdb) {
+    pick.tmdb = tmdb;
+    document.getElementById('heroTitle').textContent = tmdb.title || pick.title;
+    if (tmdb.overview) document.getElementById('heroDesc').textContent = tmdb.overview;
+    if (tmdb.vote_average && tmdb.vote_average > 0) {
+      const yr = tmdb.release_date ? tmdb.release_date.substring(0, 4) : (pick.year || '');
+      document.getElementById('heroMeta').innerHTML =
+        `<span class="rating">★ ${tmdb.vote_average.toFixed(1)}</span><span>·</span><span>${yr}</span><span>·</span><span>HD</span>`;
+    }
+    const bgPath = tmdb.backdrop_path || tmdb.poster_path;
+    if (bgPath) {
+      const bgEl = document.getElementById('heroBg');
+      const imgSize = tmdb.backdrop_path ? 'original' : 'w780';
+      // Precargar imagen antes de aplicar para evitar flash
+      const probe = new Image();
+      probe.onload = () => { bgEl.style.backgroundImage = `url(${buildImageUrl(bgPath, imgSize)})`; };
+      probe.src = buildImageUrl(bgPath, imgSize);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════
+   DEMO MOVIES (fallback)
+═══════════════════════════════════════ */
+function loadDemoMovies() {
+  const demo = [
+    {slug:'return-of-the-living-dead', year:2026, title:'Return of the Living Dead', url: 'https://pelisjuanita.com/movies/pelicula/return-of-the-living-dead', date:'2026-04-08'},
+    {slug:'sniper-no-nation', year:2026, title:'Sniper: No Nation', url: 'https://pelisjuanita.com/movies/pelicula/sniper-no-nation', date:'2026-04-07'},
+    {slug:'untold-chess-mates', year:2026, title:'Untold: Chess Mates', url: 'https://pelisjuanita.com/movies/pelicula/untold-chess-mates', date:'2026-04-07'},
+    {slug:'minecraft-la-pelicula', year:2025, title:'Minecraft La Película', url: 'https://pelisjuanita.com/movies/pelicula/minecraft-la-pelicula'},
+    {slug:'thunderbolts', year:2025, title:'Thunderbolts', url: 'https://pelisjuanita.com/movies/pelicula/thunderbolts'},
+    {slug:'avengers-doomsday', year:2026, title:'Avengers Doomsday', url: 'https://pelisjuanita.com/movies/pelicula/avengers-doomsday'},
+    {slug:'deadpool-wolverine', year:2024, title:'Deadpool & Wolverine', url: 'https://pelisjuanita.com/movies/pelicula/deadpool-wolverine'},
+    {slug:'dune-2', year:2024, title:'Dune: Parte 2', url: 'https://pelisjuanita.com/movies/pelicula/dune-2'},
+    {slug:'oppenheimer', year:2023, title:'Oppenheimer', url: 'https://pelisjuanita.com/movies/pelicula/oppenheimer'}
+  ];
+  allMovies = demo;
+  filteredMovies = [...demo];
+  renderGrid();
+  setHero(demo);
+  updateLoadingProgress(100);
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+async function init() {
+  updateLoadingProgress(5);
+  const sub = document.getElementById('loadingSub');
+  if (sub) sub.textContent = 'Buscando catálogo...';
+
+  // ── 1. Intentar recuperar sitemap guardado en localStorage ──────
+  try {
+    const stored = localStorage.getItem('miraStored_sitemap');
+    if (stored) {
+      const json = JSON.parse(stored);
+      if (json && json.length > 0) {
+        const fileName = localStorage.getItem('miraStored_fileName') || 'sitemap guardado';
+        console.log(`✅ Sitemap recuperado de localStorage: ${json.length} películas (${fileName})`);
+        if (sub) sub.textContent = `Catálogo restaurado: ${json.length} películas`;
+        updateLoadingProgress(80);
+        allMovies = json;
+        filteredMovies = [...allMovies];
+        renderGrid();
+        setHero(json);
+        document.getElementById('pageInfo').textContent = `${json.length.toLocaleString()} películas`;
+        updateLoadingProgress(100);
+        const loading = document.getElementById('loadingScreen');
+        loading.style.opacity = '0';
+        setTimeout(() => { loading.style.display = 'none'; }, 600);
+        // Precargar TMDB de los primeros 20 en segundo plano
+        const preloadCount = Math.min(20, allMovies.length);
+        for (let i = 0; i < preloadCount; i++) {
+          if (!allMovies[i].tmdb) fetchTMDB(allMovies[i].slug).then(tmdb => { allMovies[i].tmdb = tmdb; });
+          await new Promise(r => setTimeout(r, 60));
+        }
+        return; // ← salir, no pedir archivo de nuevo
+      }
+    }
+  } catch(e) { console.warn('Error leyendo localStorage:', e); }
+
+  // ── 2. Intentar cargar desde servidor local (PHP/XML) ─────────
+  const movies = await loadAndParseSitemapPHP();
+  updateLoadingProgress(85);
+
+  // Ocultar pantalla de carga
+  const loading = document.getElementById('loadingScreen');
+  loading.style.opacity = '0';
+  setTimeout(() => { loading.style.display = 'none'; }, 600);
+
+  if (movies.length > 0) {
+    // ✅ PHP encontrado — cargar catálogo real
+    allMovies = movies;
+    filteredMovies = [...allMovies];
+    renderGrid();
+    setHero(movies);
+    document.getElementById('pageInfo').textContent = `${movies.length.toLocaleString()} películas`;
+    updateLoadingProgress(100);
+    // Precargar TMDB de los primeros 20 en segundo plano
+    const preloadCount = Math.min(20, allMovies.length);
+    for (let i = 0; i < preloadCount; i++) {
+      if (!allMovies[i].tmdb) fetchTMDB(allMovies[i].slug).then(tmdb => { allMovies[i].tmdb = tmdb; });
+      await new Promise(r => setTimeout(r, 60));
+    }
+  } else {
+    // ❌ No se encontró PHP → cargar demo Y mostrar selector de archivo
+    loadDemoMovies();
+    updateLoadingProgress(100);
+    // Mostrar selector no bloqueante después de un momento
+    setTimeout(() => showFilePicker(), 800);
+  }
+}
+
+/* ═══════════════════════════════════════
+   VISTA POR SECCIONES DE AÑO
+═══════════════════════════════════════ */
+let yearSectionsMode = false;
+const YEAR_SECTION_PREVIEW = 12; // películas visibles por año antes de "ver más"
+
+function toggleYearSections() {
+  yearSectionsMode = !yearSectionsMode;
+  const btn = document.getElementById('viewToggleBtn');
+  const grid = document.getElementById('moviesGrid');
+  const yearContainer = document.getElementById('yearSectionsContainer');
+  const pag = document.getElementById('pagination');
+
+  if (yearSectionsMode) {
+    grid.style.display = 'none';
+    pag.style.display = 'none';
+    yearContainer.style.display = 'block';
+    btn.innerHTML = '<i class="fas fa-th"></i> Ver grilla';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = 'var(--accent)';
+    renderYearSections();
+  } else {
+    grid.style.display = '';
+    pag.style.display = '';
+    yearContainer.style.display = 'none';
+    yearContainer.innerHTML = '';
+    btn.innerHTML = '<i class="fas fa-layer-group"></i> Por año';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    renderGrid();
+  }
+}
+
+function renderYearSections() {
+  const container = document.getElementById('yearSectionsContainer');
+  container.innerHTML = '';
+
+  // Agrupar películas filtradas por año
+  const byYear = new Map();
+  for (const movie of filteredMovies) {
+    const y = movie.year || 'Sin año';
+    if (!byYear.has(y)) byYear.set(y, []);
+    byYear.get(y).push(movie);
+  }
+
+  // Ordenar años desc (numéricos primero, "Sin año" al final)
+  const years = [...byYear.keys()].sort((a, b) => {
+    if (a === 'Sin año') return 1;
+    if (b === 'Sin año') return -1;
+    return b - a;
+  });
+
+  for (const year of years) {
+    const movies = byYear.get(year);
+    const section = document.createElement('div');
+    section.className = 'year-section';
+    section.id = `year-section-${year}`;
+
+    const showCount = Math.min(YEAR_SECTION_PREVIEW, movies.length);
+    const hasMore = movies.length > YEAR_SECTION_PREVIEW;
+
+    section.innerHTML = `
+      <div class="year-section-header">
+        <div class="year-section-title">${year === 'Sin año' ? 'SIN AÑO' : `<span>${year}</span>`}</div>
+        <span class="year-section-count">${movies.length} película${movies.length !== 1 ? 's' : ''}</span>
+        ${hasMore ? `<button class="year-section-more" onclick="expandYearSection(this,'${year}')">Ver todas (${movies.length}) →</button>` : ''}
+      </div>
+      <div class="movies-grid year-grid" data-year="${year}" data-shown="${showCount}" data-total="${movies.length}"></div>
+    `;
+
+    container.appendChild(section);
+    renderYearGrid(section.querySelector('.year-grid'), movies.slice(0, showCount));
+  }
+}
+
+function expandYearSection(btn, year) {
+  const section = document.getElementById(`year-section-${year}`);
+  const grid = section.querySelector('.year-grid');
+  const byYear = new Map();
+  for (const movie of filteredMovies) {
+    const y = movie.year || 'Sin año';
+    if (!byYear.has(y)) byYear.set(y, []);
+    byYear.get(y).push(movie);
+  }
+  const movies = byYear.get(year === 'Sin año' ? 'Sin año' : Number(year)) || byYear.get(year) || [];
+  grid.innerHTML = '';
+  renderYearGrid(grid, movies);
+  btn.remove();
+}
+
+function renderYearGrid(gridEl, movies) {
+  movies.forEach(movie => {
+    const card = document.createElement('div');
+    card.className = 'movie-card';
+    card.dataset.slug = movie.slug;
+    const title = movie.tmdb?.title || movie.title;
+    const year = movie.year || '';
+    const isNew = year >= 2025;
+
+    card.innerHTML = `
+      <div class="shimmer"></div>
+      <img class="card-img" src="" alt="${escapeHtml(title)}" style="opacity:0;transition:opacity 0.35s ease;width:100%;height:100%;object-fit:cover;display:block">
+      <div class="movie-overlay">
+        <div class="movie-card-title">${escapeHtml(title)}</div>
+        <div class="movie-card-year">${year}</div>
+      </div>
+      ${movie.tmdb?.vote_average ? `<div class="movie-card-rating">★ ${movie.tmdb.vote_average.toFixed(1)}</div>` : ''}
+      ${isNew ? '<div class="movie-card-badge">NUEVO</div>' : ''}
+      <div class="movie-card-hd">HD</div>
+    `;
+    card.addEventListener('click', () => openMovie(movie));
+    gridEl.appendChild(card);
+
+    if (movie.tmdb?.poster_path) {
+      scheduleCardImage(card, buildImageUrl(movie.tmdb.poster_path, 'w342'));
+    } else if (movie.scrapedPoster) {
+      scheduleCardImage(card, movie.scrapedPoster);
+    } else if (movie.tmdb === undefined) {
+      fetchTMDB(movie.slug).then(tmdb => {
+        movie.tmdb = tmdb;
+        const src = tmdb?.poster_path ? buildImageUrl(tmdb.poster_path, 'w342') : (movie.scrapedPoster || null);
+        scheduleCardImage(card, src);
+        if (tmdb?.title) {
+          const titleEl = card.querySelector('.movie-card-title');
+          if (titleEl) titleEl.textContent = tmdb.title;
+        }
+      });
+    } else {
+      scheduleCardImage(card, movie.scrapedPoster || null);
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>
